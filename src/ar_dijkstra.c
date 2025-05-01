@@ -31,8 +31,8 @@ int * ar_dijkstra(struct ar_Graph *g) {
 		for (int i = 0; i < g->son_count[v]; i++) {
 			u = g->a[v][i].u;
 			d = g->a[v][i].d;
-			if (dist[u] > dist[v] + dist[u]) {
-				dist[u] = dist[v] + dist[u];
+			if (dist[u] > dist[v] + d) {
+				dist[u] = dist[v] + d;
 				avail[u] = 1;
 			}
 		}
