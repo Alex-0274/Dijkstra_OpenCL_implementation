@@ -3,13 +3,6 @@ struct ar_Edge{
 	int d;
 };
 
-__kernel void best_vertex(
-	__global int *dist,
-	__global int *avail
-) {
-
-}
-
 __kernel void dijkstra(
 	__global int *pos,
 	__global int *son_count,
