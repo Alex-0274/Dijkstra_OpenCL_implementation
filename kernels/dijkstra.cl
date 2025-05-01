@@ -3,19 +3,12 @@ struct ar_Edge{
 	int d;
 };
 
-__kernel void best_vertex(
-	__global int *dist,
-	__global int *avail
-) {
-
-}
-
 __kernel void dijkstra(
 	__global int *pos,
 	__global int *son_count,
 	__global struct ar_Edge *data,
 	__global int *dist,
-	__global int *avail,
+	__global int *upd_dist,
 	int v
 ) {
 	int id = get_global_id(0);
@@ -29,6 +22,6 @@ __kernel void dijkstra(
 
 	if (dist[u] > parent_dist + d) {
 		dist[u] = parent_dist + d;
-		avail[u] = 1;
+		upd_dist[u] = 1;
 	}
 }
