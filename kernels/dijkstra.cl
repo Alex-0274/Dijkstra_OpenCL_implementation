@@ -9,19 +9,23 @@ __kernel void dijkstra(
 	__global struct ar_Edge *data,
 	__global int *dist,
 	__global int *upd_dist,
-	int v
+	__global int *avail,
+	int vertex_count
 ) {
-	int id = get_global_id(0);
-	if (id >= son_count[v]) {
+	int v = get_global_id(0);
+	if (v >= vertex_count || !avail[v]) {
 		return;
 	}
 
-	struct ar_Edge e = data[pos[v] + id];
-	int parent_dist = dist[v];
-	int u = e.u, d = e.d;
+	int curent_son_count = son_count[v];
+	int local_dist = dist[v];
 
-	if (dist[u] > parent_dist + d) {
-		dist[u] = parent_dist + d;
-		upd_dist[u] = 1;
+	struct ar_Edge e;
+	int ind, u, d;
+	for (ind = 0; ind < curent_son_count; ind++) {
+		e = data[pos[v] + ind];
+		u = e.u; d = e.d;
+		atomic_or(&avail[u], dist[u] > local_dist + d);
+		atomic_min(&upd_dist[u], local_dist + d);
 	}
 }
