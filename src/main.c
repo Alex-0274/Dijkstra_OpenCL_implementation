@@ -11,7 +11,13 @@ int main(void) {
 	struct ar_Graph g;
 	ar_scanf_graph(&g);
 
-	int *dist = ar_CL_dijkstra(&g);
+	// int *dist = ar_CL_dijkstra(&g);
+	int *dist = ar_dijkstra(&g);
+
+	for (int i = 0; i < g.vertex_count; i++) {
+		printf("%d ", dist[i]);
+	}
+	printf("\n");
 
 	ar_destruct_graph(&g);
 	free(dist);

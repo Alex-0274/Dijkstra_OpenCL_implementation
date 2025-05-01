@@ -12,10 +12,10 @@ __kernel void update(
 	int i = get_global_id(0);
 	if (i >= vertex_count) {return;}
 	int local_dist = dist[i], new_dist = upd_dist[i];
-	if (local_dist < new_dist) {
+	if (local_dist > new_dist) {
 		dist[i] = new_dist;
 	}
-	avail[i] = local_dist < new_dist;
+	avail[i] = local_dist > new_dist;
 }
 
 __kernel void dijkstra(

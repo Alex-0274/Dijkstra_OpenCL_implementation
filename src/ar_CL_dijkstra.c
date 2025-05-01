@@ -84,7 +84,14 @@ int * ar_CL_dijkstra(struct ar_Graph *g) {
 	clSetKernelArg(kernel_dijkstra, 5, sizeof(cl_mem), &buffer_Avail);
 	clSetKernelArg(kernel_dijkstra, 6, sizeof(int), &g->vertex_count);
 
-	while (1) {
+	clSetKernelArg(kernel_update, 0, sizeof(cl_mem), &buffer_Dist);
+	clSetKernelArg(kernel_update, 1, sizeof(cl_mem), &buffer_Upd_dist);
+	clSetKernelArg(kernel_update, 2, sizeof(cl_mem), &buffer_Avail);
+	clSetKernelArg(kernel_update, 3, sizeof(int), &g->vertex_count);
+
+	int step = 0;
+
+	while (step < 100) {
 
 		clFinish(queue);
 
@@ -116,7 +123,21 @@ int * ar_CL_dijkstra(struct ar_Graph *g) {
 
 		clFinish(queue);
 
+		++step;
+
 	}
+
+	clEnqueueReadBuffer(
+		queue,
+		buffer_Dist,
+		CL_TRUE,
+		0,
+		g->vertex_count * sizeof(int),
+		dist,
+		0,
+		NULL,
+		NULL
+	);
 
 	free(avail);
 
