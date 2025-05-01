@@ -12,7 +12,6 @@ int main(void) {
 	ar_scanf_graph(&g);
 
 	int *dist = ar_CL_dijkstra(&g);
-	int *dist = ar_dijkstra(&g);
 
 	ar_destruct_graph(&g);
 	free(dist);

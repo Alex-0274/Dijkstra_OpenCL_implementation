@@ -7,15 +7,16 @@
 #include "../inc/ar_CL_.h"
 int * ar_CL_dijkstra(struct ar_Graph *g) {
 	int *dist = (int *)malloc(g->vertex_count * sizeof(int));
+	int *upd_dist = (int *)malloc(g->vertex_count * sizeof(int));
+
 	for (int i = 0; i < g->vertex_count; i++) {
 		dist[i] = 1000000001;
+		upd_dist[i] = 1000000001;
 	}
-	dist[g->root] = 0;
+	upd_dist[g->root] = 0;
 
 	int *avail = (int *)malloc(g->vertex_count * sizeof(int));
 	memset(avail, 0, g->vertex_count * sizeof(int));
-
-	avail[g->root] = 1;
 
 	cl_platform_id platform = ar_get_platform();
 	cl_device_id device = ar_get_device(&platform);
@@ -27,9 +28,11 @@ int * ar_CL_dijkstra(struct ar_Graph *g) {
 	cl_program program = clCreateProgramWithSource(context, 1, &kernel_source, NULL, NULL);
 	clBuildProgram(program, 1, &device, NULL, NULL, NULL);
 
-	cl_kernel kernel = clCreateKernel(program, "dijkstra", NULL);
+	cl_kernel kernel_dijkstra = clCreateKernel(program, "dijkstra", NULL);
 
-	cl_mem buffer_Pos, buffer_Son_count, buffer_Data, buffer_Dist, buffer_Avail;
+	cl_kernel kernel_update = clCreateKernel(program, "update", NULL);
+
+	cl_mem buffer_Pos, buffer_Son_count, buffer_Data, buffer_Dist, buffer_Upd_dist, buffer_Avail;
 	buffer_Pos = clCreateBuffer(
 		context,
 		CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
@@ -58,6 +61,13 @@ int * ar_CL_dijkstra(struct ar_Graph *g) {
 		dist,
 		NULL
 	);
+	buffer_Upd_dist = clCreateBuffer(
+		context,
+		CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR,
+		g->vertex_count * sizeof(int),
+		upd_dist,
+		NULL
+	);
 	buffer_Avail = clCreateBuffer(
 		context,
 		CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR,
@@ -66,42 +76,38 @@ int * ar_CL_dijkstra(struct ar_Graph *g) {
 		NULL
 	);
 
-	clSetKernelArg(kernel, 0, sizeof(cl_mem), &buffer_Pos);
-	clSetKernelArg(kernel, 1, sizeof(cl_mem), &buffer_Son_count);
-	clSetKernelArg(kernel, 2, sizeof(cl_mem), &buffer_Data);
-	clSetKernelArg(kernel, 3, sizeof(cl_mem), &buffer_Dist);
-	clSetKernelArg(kernel, 4, sizeof(cl_mem), &buffer_Avail);
+	clSetKernelArg(kernel_dijkstra, 0, sizeof(cl_mem), &buffer_Pos);
+	clSetKernelArg(kernel_dijkstra, 1, sizeof(cl_mem), &buffer_Son_count);
+	clSetKernelArg(kernel_dijkstra, 2, sizeof(cl_mem), &buffer_Data);
+	clSetKernelArg(kernel_dijkstra, 3, sizeof(cl_mem), &buffer_Dist);
+	clSetKernelArg(kernel_dijkstra, 4, sizeof(cl_mem), &buffer_Upd_dist);
+	clSetKernelArg(kernel_dijkstra, 5, sizeof(cl_mem), &buffer_Avail);
+	clSetKernelArg(kernel_dijkstra, 6, sizeof(int), &g->vertex_count);
 
 	while (1) {
-		int v = -1;
-		for (int i = 0; i < g->vertex_count; i++) {
-			if (!avail[i]) {continue;}
-			if (v == -1) {v = i; continue;}
-			if (dist[i] < dist[v]) {v = i;}
-		}
-		if (v == -1) {break;}
-		clSetKernelArg(kernel, 5, sizeof(int), &v);
 
-		avail[v] = 0;
-
-		clEnqueueWriteBuffer(
-			queue,
-			buffer_Avail,
-			CL_TRUE,
-			0,
-			g->vertex_count * sizeof(int),
-			avail,
-			0,
-			NULL,
-			NULL
-		);
+		clFinish(queue);
 
 		clEnqueueNDRangeKernel(
 			queue,
-			kernel,
+			kernel_update,
 			1,
 			NULL,
-			(const long unsigned int *)&(g->son_count[v]),
+			(const long unsigned int *)&(g->vertex_count),
+			NULL,
+			0,
+			NULL,
+			NULL
+		);		
+
+		clFinish(queue);
+
+		clEnqueueNDRangeKernel(
+			queue,
+			kernel_dijkstra,
+			1,
+			NULL,
+			(const long unsigned int *)&(g->vertex_count),
 			NULL,
 			0,
 			NULL,
@@ -110,29 +116,6 @@ int * ar_CL_dijkstra(struct ar_Graph *g) {
 
 		clFinish(queue);
 
-		clEnqueueReadBuffer(
-			queue,
-			buffer_Dist,
-			CL_TRUE,
-			0,
-			g->vertex_count * sizeof(int),
-			dist,
-			0,
-			NULL,
-			NULL
-		);
-
-		clEnqueueReadBuffer(
-			queue,
-			buffer_Avail,
-			CL_TRUE,
-			0,
-			g->vertex_count * sizeof(int),
-			avail,
-			0,
-			NULL,
-			NULL
-		);
 	}
 
 	free(avail);

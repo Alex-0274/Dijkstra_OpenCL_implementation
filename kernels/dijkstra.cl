@@ -3,6 +3,21 @@ struct ar_Edge{
 	int d;
 };
 
+__kernel void update(
+	__global int *dist,
+	__global int *upd_dist,
+	__global int *avail,
+	int vertex_count
+) {
+	int i = get_global_id(0);
+	if (i >= vertex_count) {return;}
+	int local_dist = dist[i], new_dist = upd_dist[i];
+	if (local_dist < new_dist) {
+		dist[i] = new_dist;
+	}
+	avail[i] = local_dist < new_dist;
+}
+
 __kernel void dijkstra(
 	__global int *pos,
 	__global int *son_count,
