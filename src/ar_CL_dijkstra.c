@@ -84,14 +84,35 @@ int * ar_CL_dijkstra(struct ar_Graph *g) {
 	clSetKernelArg(kernel_dijkstra, 5, sizeof(cl_mem), &buffer_Avail);
 	clSetKernelArg(kernel_dijkstra, 6, sizeof(int), &g->vertex_count);
 
+	int flag = 1, zero = 0;
+	cl_mem buffer_Upd_flag;
+	buffer_Upd_flag = clCreateBuffer(
+		context,
+		CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR,
+		sizeof(int),
+		&flag,
+		NULL
+	);
+
 	clSetKernelArg(kernel_update, 0, sizeof(cl_mem), &buffer_Dist);
 	clSetKernelArg(kernel_update, 1, sizeof(cl_mem), &buffer_Upd_dist);
 	clSetKernelArg(kernel_update, 2, sizeof(cl_mem), &buffer_Avail);
 	clSetKernelArg(kernel_update, 3, sizeof(int), &g->vertex_count);
+	clSetKernelArg(kernel_update, 4, sizeof(cl_mem), &buffer_Upd_flag);
 
-	int step = 0;
+	while (flag) {
 
-	while (step < 100) {
+		clEnqueueFillBuffer(
+			queue,
+			buffer_Upd_flag,
+			&zero,
+			sizeof(int),
+			0,
+			sizeof(int),
+			0,
+			NULL,
+			NULL
+		);
 
 		clFinish(queue);
 
@@ -109,6 +130,22 @@ int * ar_CL_dijkstra(struct ar_Graph *g) {
 
 		clFinish(queue);
 
+		clEnqueueReadBuffer(
+			queue,
+			buffer_Upd_flag,
+			CL_TRUE,
+			0,
+			sizeof(int),
+			&flag,
+			0,
+			NULL,
+			NULL
+		);
+
+		clFinish(queue);
+
+		if (!flag) {break;}
+
 		clEnqueueNDRangeKernel(
 			queue,
 			kernel_dijkstra,
@@ -122,8 +159,6 @@ int * ar_CL_dijkstra(struct ar_Graph *g) {
 		);
 
 		clFinish(queue);
-
-		++step;
 
 	}
 

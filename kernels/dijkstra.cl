@@ -7,13 +7,15 @@ __kernel void update(
 	__global int *dist,
 	__global int *upd_dist,
 	__global int *avail,
-	int vertex_count
+	int vertex_count,
+	__global int *updated
 ) {
 	int i = get_global_id(0);
 	if (i >= vertex_count) {return;}
 	int local_dist = dist[i], new_dist = upd_dist[i];
 	if (local_dist > new_dist) {
 		dist[i] = new_dist;
+		atomic_or(&updated[0], 1);
 	}
 	avail[i] = local_dist > new_dist;
 }
