@@ -22,7 +22,7 @@ int * ar_CL_dijkstra(struct ar_Graph *g) {
 	cl_context context = ar_get_context(&device);
 	cl_command_queue queue = ar_get_command_queue(&context, &device);
 
-	const char *kernel_source = ar_read_file("kernels/dijkstra.cl");\
+	const char *kernel_source = ar_read_file("kernels/dijkstra.cl");
 
 	cl_program program = clCreateProgramWithSource(context, 1, &kernel_source, NULL, NULL);
 	clBuildProgram(program, 1, &device, NULL, NULL, NULL);
