@@ -4,7 +4,8 @@ struct ar_Edge{
 };
 
 __kernel void best_vertex(
-
+	__global int *dist,
+	__global int *avail
 ) {
 
 }
