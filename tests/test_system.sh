@@ -3,52 +3,54 @@
 ar_dir="/dev/shm/AR_CL_Project_TMP_directory"
 test_generator="gtg"
 test_generator_src="gragen.cpp"
+project_dir=$(pwd)
+testing_dirs=(100000)
+test_case_count="2"
 
-rm -rf $ar_dir
+function run_tests {
 
-mkdir -p $ar_dir
+	echo ""
+	for dir in ${testing_dirs[@]}; do
+		for (( test_case_num = 1; test_case_num <= $(($test_case_count)); test_case_num++ )) do
+			test_name="$ar_dir/tests/$dir/test_$test_case_num.in"
+			echo -n "$2 "
+			./$1 < $test_name > $ar_dir/results/$dir/$2_$test_case_num.out
+		done
+	done
 
-echo "Created dir $ar_dir."
+}
 
-cp ./tests/$test_generator_src $ar_dir/
+function generate_tests {
 
-cd $ar_dir
+	rm -rf $ar_dir
 
-clang++ -Wall -o $test_generator $test_generator_src -O2
+	mkdir -p $ar_dir
+	mkdir -p $ar_dir/tests
+	mkdir -p $ar_dir/results
 
-echo "Compiled $test_generator."
+	cp ./tests/$test_generator_src $ar_dir/
 
-mkdir -p tests
+	clang++ -Wall -o $ar_dir/$test_generator $ar_dir/$test_generator_src -O2
 
-# Generating small test cases
-mkdir -p tests/small
-for (( test_case_num = 1; test_case_num <= 50; test_case_num++ )) do
+	for dir in ${testing_dirs[@]}; do
+		mkdir $ar_dir/tests/$dir
+		mkdir $ar_dir/results/$dir
+		for (( test_case_num = 1; test_case_num <= $(($test_case_count)); test_case_num++ )) do
+			test_name="$ar_dir/tests/$dir/test_$test_case_num.in"
+			$ar_dir/$test_generator $test_case_num $dir > $test_name
+			echo "Generation test $test_case_num with $dir vertexes is done."
+		done
+	done
 
-	test_name="$test_case_num.in"
-	./$test_generator 10 > tests/small/$test_name
+}
 
-	echo "Generation test number $test_case_num is done."
+if [ $# -gt 1 ]; then
+	test_case_count=$1
+	testing_dirs=($2)
+	generate_tests
+fi
 
-done
+{ time run_tests "/build/app" "gpu"; } 2>&1 | grep real
+{ time run_tests "/misc/dijkstra" "cpu"; } 2>&1 | grep real
 
-# Generating middle test cases
-mkdir -p tests/middle
-for (( test_case_num = 1; test_case_num <= 50; test_case_num++ )) do
-
-	test_name="$test_case_num.in"
-	./$test_generator 1000 > tests/middle/$test_name
-
-	echo "Generation test number $test_case_num is done."
-
-done
-
-# Generating big test cases
-mkdir -p tests/big
-for (( test_case_num = 1; test_case_num <= 50; test_case_num++ )) do
-
-	test_name="$test_case_num.in"
-	./$test_generator 100000 > tests/big/$test_name
-
-	echo "Generation test number $test_case_num is done."
-
-done
+exit 0

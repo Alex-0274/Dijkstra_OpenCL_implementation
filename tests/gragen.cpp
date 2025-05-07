@@ -1,8 +1,6 @@
 #include <bits/stdc++.h>
 using namespace std;
 int main(int argc, char *argv[]) {
-	srand(time(NULL));
-
 	ios_base::sync_with_stdio(false);
 	cin.tie(NULL);
 	cout << fixed; cout.precision(20);
@@ -16,9 +14,11 @@ int main(int argc, char *argv[]) {
 		arg[i - 1] = stoi(argv[i]);
 	}
 
-	if (argc == 1) {n = 2; m = 1;}
-	if (argc == 2) {n = arg[0]; m = arg[0] + (arg[0] >> 1);}
-	if (argc >= 3) {n = arg[0]; m = arg[1];}
+	if (argc <= 2) {n = 2; m = 1;}
+	if (argc == 3) {n = arg[1]; m = (arg[1] << 1) + (arg[1] >> 1);}
+	if (argc >= 4) {n = arg[1]; m = arg[1];}
+
+	srand(time(NULL) + arg[0]);
 
 	root = rand() % n;
 
