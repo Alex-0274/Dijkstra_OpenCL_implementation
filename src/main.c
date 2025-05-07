@@ -18,11 +18,6 @@ int main(void) {
 	}
 	printf("\n");
 
-	for (int i = 0; i < g.vertex_count; i++) {
-		printf("%d ", dist[i]);
-	}
-	printf("\n");
-
 	ar_destruct_graph(&g);
 	free(dist);
 	return 0;
