@@ -102,77 +102,19 @@ int * ar_CL_dijkstra(struct ar_Graph *g) {
 
 	while (flag) {
 
-		clEnqueueFillBuffer(
-			queue,
-			buffer_Upd_flag,
-			&zero,
-			sizeof(int),
-			0,
-			sizeof(int),
-			0,
-			NULL,
-			NULL
-		);
+		clEnqueueNDRangeKernel(queue, kernel_dijkstra, 1, NULL, (const long unsigned int *)&(g->vertex_count), NULL, 0, NULL, NULL);
 
-		clFinish(queue);
+		clEnqueueFillBuffer(queue, buffer_Upd_flag, &zero, sizeof(int), 0, sizeof(int), 0, NULL, NULL);
 
-		clEnqueueNDRangeKernel(
-			queue,
-			kernel_update,
-			1,
-			NULL,
-			(const long unsigned int *)&(g->vertex_count),
-			NULL,
-			0,
-			NULL,
-			NULL
-		);		
+		clEnqueueNDRangeKernel(queue, kernel_update, 1, NULL, (const long unsigned int *)&(g->vertex_count), NULL, 0, NULL, NULL);		
 
-		clFinish(queue);
-
-		clEnqueueReadBuffer(
-			queue,
-			buffer_Upd_flag,
-			CL_TRUE,
-			0,
-			sizeof(int),
-			&flag,
-			0,
-			NULL,
-			NULL
-		);
-
-		clFinish(queue);
-
-		if (!flag) {break;}
-
-		clEnqueueNDRangeKernel(
-			queue,
-			kernel_dijkstra,
-			1,
-			NULL,
-			(const long unsigned int *)&(g->vertex_count),
-			NULL,
-			0,
-			NULL,
-			NULL
-		);
+		clEnqueueReadBuffer(queue, buffer_Upd_flag, CL_TRUE, 0, sizeof(int), &flag, 0, NULL, NULL);
 
 		clFinish(queue);
 
 	}
 
-	clEnqueueReadBuffer(
-		queue,
-		buffer_Dist,
-		CL_TRUE,
-		0,
-		g->vertex_count * sizeof(int),
-		dist,
-		0,
-		NULL,
-		NULL
-	);
+	clEnqueueReadBuffer(queue, buffer_Dist, CL_TRUE, 0, g->vertex_count * sizeof(int), dist, 0, NULL, NULL);
 
 	free(avail);
 
