@@ -16,8 +16,6 @@ __kernel void update(
 	if (local_dist > new_dist) {
 		dist[i] = new_dist;
 		atomic_or(&updated[0], 1);
-	} else {
-		upd_dist[i] = local_dist;
 	}
 	avail[i] = local_dist > new_dist;
 }
@@ -45,6 +43,7 @@ __kernel void dijkstra(
 	for (ind = 0; ind < curent_son_count; ind++) {
 		e = data[pos[v] + ind];
 		u = e.u; d = e.d;
+		atomic_or(&avail[u], dist[u] > local_dist + d);
 		atomic_min(&upd_dist[u], local_dist + d);
 	}
 }

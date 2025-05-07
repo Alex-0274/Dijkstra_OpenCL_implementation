@@ -61,7 +61,6 @@ echo -n "CPU "; { time run_tests "$ar_dir/dijkstra" "cpu"; } 2>&1 | grep real
 
 for dir in ${testing_dirs[@]}; do
 	for (( test_case_num = 1; test_case_num <= $(($test_case_count)); test_case_num++ )) do
-		echo -n "$dir $test_case_num    "
 		$ar_dir/check_equivalence $ar_dir/results/$dir/gpu_$test_case_num.out $ar_dir/results/$dir/cpu_$test_case_num.out
 	done
 done
