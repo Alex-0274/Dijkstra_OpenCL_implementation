@@ -2,7 +2,7 @@
 #define AR_ar_graph
 struct ar_Edge{
 	int u;
-	int d;
+	long long d;
 };
 
 struct ar_Graph{

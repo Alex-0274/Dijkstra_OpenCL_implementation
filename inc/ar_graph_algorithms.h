@@ -3,5 +3,5 @@
 #ifndef AR_ar_graph_algorithms
 #define AR_ar_graph_algorithms
 int * ar_dijkstra(struct ar_Graph *g);
-void ar_boruvka(struct ar_Graph *g, struct ar_Graph *mst);
+// void ar_boruvka(struct ar_Graph *g, struct ar_Graph *mst);
 #endif

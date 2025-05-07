@@ -5,7 +5,7 @@
 #include <time.h>
 #include <CL/cl.h>
 #include "../inc/ar_graph.h"
-#include "../inc/ar_disjoint_set.h"
+// #include "../inc/ar_disjoint_set.h"
 #include "../inc/ar_graph_algorithms.h"
 #include "../inc/ar_CL_graph_algorithms.h"
 int main(void) {
@@ -13,10 +13,10 @@ int main(void) {
 	struct ar_Graph g;
 	ar_scanf_graph(&g);
 
-	int *dist = ar_CL_dijkstra(&g);
+	long long *dist = ar_CL_dijkstra(&g);
 
 	for (int i = 0; i < g.vertex_count; i++) {
-		printf("%d ", dist[i]);
+		printf("%lld ", dist[i]);
 	}
 	printf("\n");
 

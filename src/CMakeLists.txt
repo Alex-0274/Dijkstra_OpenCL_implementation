@@ -11,12 +11,12 @@ project(app LANGUAGES C)
 find_package(OpenCL REQUIRED)
 
 set(SOURCE
-	ar_boruvka.c
-	ar_CL_boruvka.c
+	# ar_boruvka.c
+	# ar_CL_boruvka.c
 	ar_CL_.c
 	ar_CL_dijkstra.c
 	ar_dijkstra.c
-	ar_disjoint_set.c
+	# ar_disjoint_set.c
 	ar_graph.c
 	ar_hf.c
 	main.c
@@ -25,7 +25,7 @@ set(SOURCE
 set(HEADERS
 	../inc/ar_CL_graph_algorithms.h
 	../inc/ar_CL_.h
-	../inc/ar_disjoint_set.h
+	# ../inc/ar_disjoint_set.h
 	../inc/ar_graph_algorithms.h
 	../inc/ar_graph.h
 	../inc/ar_hf.h

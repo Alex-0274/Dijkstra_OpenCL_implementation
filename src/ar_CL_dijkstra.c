@@ -5,9 +5,9 @@
 #include "../inc/ar_CL_graph_algorithms.h"
 #include "../inc/ar_hf.h"
 #include "../inc/ar_CL_.h"
-int * ar_CL_dijkstra(struct ar_Graph *g) {
-	int *dist = (int *)malloc(g->vertex_count * sizeof(int));
-	int *upd_dist = (int *)malloc(g->vertex_count * sizeof(int));
+long long * ar_CL_dijkstra(struct ar_Graph *g) {
+	long long *dist = (long long *)malloc(g->vertex_count * sizeof(long long));
+	long long *upd_dist = (long long *)malloc(g->vertex_count * sizeof(long long));
 
 	for (int i = 0; i < g->vertex_count; i++) {
 		dist[i] = 1000000001;
