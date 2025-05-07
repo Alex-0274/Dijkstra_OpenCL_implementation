@@ -2,12 +2,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <time.h>
 #include <CL/cl.h>
 #include "../inc/ar_graph.h"
 #include "../inc/ar_disjoint_set.h"
 #include "../inc/ar_graph_algorithms.h"
 #include "../inc/ar_CL_graph_algorithms.h"
 int main(void) {
+	srand(time(NULL));
 	struct ar_Graph g;
 	ar_scanf_graph(&g);
 
