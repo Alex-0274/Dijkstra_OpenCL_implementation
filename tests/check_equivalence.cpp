@@ -7,14 +7,14 @@ int main(int argc, char *argv[]) {
 	ifstream in_cpu(argv[2]);
 	while (in_gpu >> g && in_cpu >> c) {
 		if (g != c) {
-			cout << "Fail! Dismatch: ";
-            cout << i << ' ' << g << ' ' << c << endl;
+			printf("\033[1;31mFail! Dismatch: \033[0m");
+			printf("\033[1;33m%d %d %d\033[0m\n", i, g, c);
             return 0;
 		}
 		++i;
 	}
 	in_gpu.close();
 	in_cpu.close();
-    cout << "They are equal!" << endl;
+	printf("\033[1;34mThey are equal!\033[0m\n");
 	return 0;
 }
