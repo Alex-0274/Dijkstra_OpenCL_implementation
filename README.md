@@ -15,7 +15,7 @@ This project demonstrates in wich cases GPU is better then CPU. For that purpose
 1. Download it
 
 ``` bash
-git clone ...
+git clone https://github.com/Alex-0274/Dijkstra_OpenCL_implementation
 ```
 
 2. Move to project directory
@@ -29,6 +29,7 @@ cd ~/.../Dijkstra_OpenCL_implementation
 
 ``` bash
 cmake -S src -B build
+cmake --build build
 ```
 
 ## How to run some tests
