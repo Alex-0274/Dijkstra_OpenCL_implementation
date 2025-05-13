@@ -18,12 +18,14 @@ function run_tests {
 	programm=$1
 	type=$2
 	num_of_tests_NOW_local=$3
-	vertex_count_NOW_local=$4
+	dir_name=$4
 
 	for (( test_case_num = 1; test_case_num <= $(($num_of_tests_NOW_local)); test_case_num++ )) do
-		test_name="$ar_dir/tests/$vertex_count_NOW_local/test_$test_case_num.in"
-		$programm < $test_name > $ar_dir/results/$vertex_count_NOW_local/$type_$test_case_num.out
+		test_name="$ar_dir/tests/$dir_name/test_$test_case_num.in"
+		$programm < $test_name > $ar_dir/results/$dir_name/${type}_$test_case_num.out
 	done
+
+	return 0
 
 }
 
@@ -47,12 +49,14 @@ for ((i=3; i <= $#; i+=3)); do
 	vertex_count_NOW=$(($i - 1)); vertex_count_NOW=("${!vertex_count_NOW}")
 	average_edge_count_NOW=$i; average_edge_count_NOW=("${!average_edge_count_NOW}")
 
-	mkdir $ar_dir/tests/$vertex_count_NOW
-	mkdir $ar_dir/results/$vertex_count_NOW
+	dir_name="$vertex_count_NOW.$average_edge_count_NOW"
+
+	mkdir $ar_dir/tests/$dir_name
+	mkdir $ar_dir/results/$dir_name
 
 	for (( test_case_num = 1; test_case_num <= $(($num_of_tests_NOW)); test_case_num++ )) do
 
-		test_name="$ar_dir/tests/$vertex_count_NOW/test_$test_case_num.in"
+		test_name="$ar_dir/tests/$dir_name/test_$test_case_num.in"
 		
 		$ar_dir/gragen $test_case_num $vertex_count_NOW $average_edge_count_NOW > $test_name
 
@@ -66,33 +70,37 @@ echo
 
 du -sh $ar_dir/tests
 
-for ((i=3; i <= $#; i+=3)); do
+clear
 
-	num_of_tests_NOW=$(($i - 2)); num_of_tests_NOW=("${!num_of_tests_NOW}")
-	vertex_count_NOW=$(($i - 1)); vertex_count_NOW=("${!vertex_count_NOW}")
-	average_edge_count_NOW=$i; average_edge_count_NOW=("${!average_edge_count_NOW}")
+test_them() {
 
-	echo
-	
-	echo -ne "\033[1;34mGPU on test case ($num_of_tests_NOW, $vertex_count_NOW, $average_edge_count_NOW) \033[1;33m";
-	{ time run_tests "./build/app" "gpu" $num_of_tests_NOW $vertex_count_NOW; } 2>&1 | grep real
-	
-	echo -ne "\033[1;34mCPU on test case ($num_of_tests_NOW, $vertex_count_NOW, $average_edge_count_NOW) \033[1;33m";
-	{ time run_tests "$ar_dir/dijkstra" "cpu" $num_of_tests_NOW $vertex_count_NOW; } 2>&1 | grep real
-	
-done
+	for ((i=3; i <= $#; i+=3)); do
 
-echo -e "\033[0m"
+		num_of_tests_NOW="${@:$((i-2)):1}"
+		vertex_count_NOW="${@:$((i-1)):1}"
+		average_edge_count_NOW="${@:$i:1}"
 
-# for dir in ${vertex_count[@]}; do
+		dir_name="$vertex_count_NOW.$average_edge_count_NOW"
 
-# 	for (( test_case_num = 1; test_case_num <= $((${num_of_tests[$dir]})); test_case_num++ )) do
+		echo -ne "\033[1;34mGPU on test case ($num_of_tests_NOW, $vertex_count_NOW, $average_edge_count_NOW) \033[1;33m";
+		{ time run_tests "./build/app" "gpu" $num_of_tests_NOW $dir_name; } 2>&1 | grep real
+		
+		echo -ne "\033[1;34mCPU on test case ($num_of_tests_NOW, $vertex_count_NOW, $average_edge_count_NOW) \033[1;33m";
+		{ time run_tests "$ar_dir/dijkstra" "cpu" $num_of_tests_NOW $dir_name; } 2>&1 | grep real
+		
+		echo
 
-# 		echo -ne "$dir\t\t$test_case_num\t" 
-# 		$ar_dir/check_equivalence $ar_dir/results/$dir/gpu_$test_case_num.out $ar_dir/results/$dir/cpu_$test_case_num.out
+	done
 
-# 	done
+	return 0
+}
 
-# done
+test_them "$@" > $ar_dir/Results.txt
+
+echo "==========================================" >> $ar_dir/Results.txt
+
+cat $ar_dir/Results.txt
+
+rm -rf $ar_dir
 
 exit 0
