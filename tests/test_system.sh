@@ -66,6 +66,8 @@ echo
 
 du -sh $ar_dir/tests
 
+clear
+
 for ((i=3; i <= $#; i+=3)); do
 
 	num_of_tests_NOW=$(($i - 2)); num_of_tests_NOW=("${!num_of_tests_NOW}")
@@ -84,15 +86,6 @@ done
 
 echo -e "\033[0m"
 
-# for dir in ${vertex_count[@]}; do
-
-# 	for (( test_case_num = 1; test_case_num <= $((${num_of_tests[$dir]})); test_case_num++ )) do
-
-# 		echo -ne "$dir\t\t$test_case_num\t" 
-# 		$ar_dir/check_equivalence $ar_dir/results/$dir/gpu_$test_case_num.out $ar_dir/results/$dir/cpu_$test_case_num.out
-
-# 	done
-
-# done
+rm -rf $ar_dir
 
 exit 0
