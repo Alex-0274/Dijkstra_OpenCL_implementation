@@ -15,7 +15,8 @@ void ar_build_graph(
 
 	g->a = (struct ar_Edge**)malloc(g->vertex_count * sizeof(struct ar_Edge*));
 	g->data = (struct ar_Edge*)malloc(2 * g->edge_count * sizeof(struct ar_Edge));
-
+	memset(g->data, 0, 2 * g->edge_count * sizeof(struct ar_Edge));
+	
 	for (int i = 0; i < g->edge_count; i++) {
 		g->son_count[intput[i * 3]]++;
 		g->son_count[intput[i * 3 + 1]]++;
@@ -55,6 +56,8 @@ void ar_scanf_graph(struct ar_Graph *g) {
 	g->edge_count = m;
 
 	int *intput = (int*)malloc(3 * g->edge_count * sizeof(int));
+	memset(intput, 0, 3 * g->edge_count * sizeof(int));
+	
 	for (int i = 0; i < g->edge_count; i++) {
 		scanf("%d %d %d", &(intput[i * 3]), &(intput[i * 3 + 1]), &(intput[i * 3 + 2]));
 		intput[i * 3]--; intput[i * 3 + 1]--;
@@ -70,7 +73,11 @@ void ar_printf_graph(struct ar_Graph *g) {
 	for (int i = 0; i < g->vertex_count; i++) {
 		printf("%d %d\n", i + 1, g->son_count[i]);
 		for (int j = 0; j < g->son_count[i]; j++) {
-			printf("(%d; %d) ", g->a[i][j].u + 1, g->a[i][j].d);
+			if (!g->a[i][j].u && !g->a[i][j].d) {
+				printf("\033[1;31m(%d; %d) \033[0m", g->a[i][j].u + 1, g->a[i][j].d);
+			} else {
+				printf("(%d; %d) ", g->a[i][j].u + 1, g->a[i][j].d);
+			}
 		}
 		printf("\n");
 	}

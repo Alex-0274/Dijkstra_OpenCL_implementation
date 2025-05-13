@@ -43,7 +43,6 @@ __kernel void dijkstra(
 	for (ind = 0; ind < curent_son_count; ind++) {
 		e = data[pos[v] + ind];
 		u = e.u; d = e.d;
-		atomic_or(&avail[u], dist[u] > local_dist + d);
 		atomic_min(&upd_dist[u], local_dist + d);
 	}
 }

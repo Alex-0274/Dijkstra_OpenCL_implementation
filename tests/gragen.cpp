@@ -29,12 +29,16 @@ int main(int argc, char *argv[]) {
 		v = rand() % n + 1;
 		u = rand() % n + 1;
 		
+		if (u == v) {continue;}
+
 		if (v > u) {
 			swap(v, u);
 		}
 
 		if (edge.find({v, u}) == edge.end()) {
 			edge.insert({v, u});
+		} else {
+			continue;
 		}
 
 		d = rand() % 1000 + 1;

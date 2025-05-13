@@ -35,4 +35,4 @@ add_executable(${PROJECT_NAME} ${SOURCE} ${HEADERS})
 
 target_include_directories(${PROJECT_NAME} PRIVATE ${OpenCL_INCLUDE_DIRS})
 
-target_link_libraries(${PROJECT_NAME} PRIVATE ${OpenCL_LIBRARIES} PUBLIC -lm)
+target_link_libraries(${PROJECT_NAME} PRIVATE ${OpenCL_LIBRARIES} PUBLIC -lm -O2)
