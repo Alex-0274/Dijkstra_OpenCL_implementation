@@ -38,13 +38,14 @@ Please note that the tests may require significant disk space. To optimize perfo
 
 All temporary files created during testing will be stored in the system's shared memory directory: /dev/shm/AR_CL_Project_TMP_directory. This ensures faster I/O operations and automatic cleanup after system reboots.
 
-Testing is organized into groups for better clarity. Each group is defined by two parameters:
+Testing is organized into groups for better clarity. Each group is defined by three parameters:
 
     1.Number of tests in the group
     2.Number of vertices in each test case
+    3.Average count of edges in each test case (must be natural number)
 
 An example of an iteraction:
 
 ``` bash
-./tests/test_system.sh 10 100 30 10000 50 100000 20 1000000 2 10000000
+./tests/test_system.sh 100 10000 300 2 1000000 10 5 10000000 2
 ```

@@ -1,5 +1,7 @@
 #!/bin/bash
 
+clear
+
 cmake --build build
 
 ar_dir="/dev/shm/AR_CL_Project_TMP_directory"
@@ -7,68 +9,90 @@ project_dir=$(pwd)
 
 required=("gragen" "check_equivalence" "dijkstra")
 
-declare -a testing_dirs=()
-declare -A num_of_tests=()
+declare -a num_of_tests=()
+declare -a vertex_count=()
+declare -a average_edge_count=()
 
 function run_tests {
 
-	for (( test_case_num = 1; test_case_num <= $((${num_of_tests[$3]})); test_case_num++ )) do
-		test_name="$ar_dir/tests/$3/test_$test_case_num.in"
-		$1 < $test_name > $ar_dir/results/$3/$2_$test_case_num.out
+	programm=$1
+	type=$2
+	num_of_tests_NOW_local=$3
+	vertex_count_NOW_local=$4
+
+	for (( test_case_num = 1; test_case_num <= $(($num_of_tests_NOW_local)); test_case_num++ )) do
+		test_name="$ar_dir/tests/$vertex_count_NOW_local/test_$test_case_num.in"
+		$programm < $test_name > $ar_dir/results/$vertex_count_NOW_local/$type_$test_case_num.out
 	done
 
 }
 
-function generate_tests {
+rm -rf $ar_dir
 
-	rm -rf $ar_dir
+mkdir -p $ar_dir
+mkdir -p $ar_dir/tests
+mkdir -p $ar_dir/results
 
-	mkdir -p $ar_dir
-	mkdir -p $ar_dir/tests
-	mkdir -p $ar_dir/results
+for file in ${required[@]}; do
 
-	for file in ${required[@]}; do
-		clang++ -Wall -o $ar_dir/$file ./tests/$file.cpp -O2
-	done
+	clang++ -Wall -o $ar_dir/$file ./tests/$file.cpp -O2
 
-	for dir in ${testing_dirs[@]}; do
-		mkdir $ar_dir/tests/$dir
-		mkdir $ar_dir/results/$dir
-		for (( test_case_num = 1; test_case_num <= $((${num_of_tests[$dir]})); test_case_num++ )) do
-			test_name="$ar_dir/tests/$dir/test_$test_case_num.in"
-			$ar_dir/gragen $test_case_num $dir > $test_name
-			echo "Generation test $test_case_num with $dir vertexes is done."
-		done
-	done
-
-	echo
-
-	du -sh $ar_dir/tests
-
-}
-
-for ((i=2; i <= $#; i+=2)); do
-	prev=$(($i - 1))
-	now=$i
-	testing_dirs+=("${!now}")
-	num_of_tests["${!now}"]="${!prev}"
 done
 
-generate_tests
+echo "Compilation is complete."
 
-for dir in ${testing_dirs[@]}; do
+for ((i=3; i <= $#; i+=3)); do
+
+	num_of_tests_NOW=$(($i - 2)); num_of_tests_NOW=("${!num_of_tests_NOW}")
+	vertex_count_NOW=$(($i - 1)); vertex_count_NOW=("${!vertex_count_NOW}")
+	average_edge_count_NOW=$i; average_edge_count_NOW=("${!average_edge_count_NOW}")
+
+	mkdir $ar_dir/tests/$vertex_count_NOW
+	mkdir $ar_dir/results/$vertex_count_NOW
+
+	for (( test_case_num = 1; test_case_num <= $(($num_of_tests_NOW)); test_case_num++ )) do
+
+		test_name="$ar_dir/tests/$vertex_count_NOW/test_$test_case_num.in"
+		
+		$ar_dir/gragen $test_case_num $vertex_count_NOW $average_edge_count_NOW > $test_name
+
+		echo "Generation test $test_case_num in test case ($num_of_tests_NOW, $vertex_count_NOW, $average_edge_count_NOW) is done."
+
+	done
+
+done
+
+echo
+
+du -sh $ar_dir/tests
+
+for ((i=3; i <= $#; i+=3)); do
+
+	num_of_tests_NOW=$(($i - 2)); num_of_tests_NOW=("${!num_of_tests_NOW}")
+	vertex_count_NOW=$(($i - 1)); vertex_count_NOW=("${!vertex_count_NOW}")
+	average_edge_count_NOW=$i; average_edge_count_NOW=("${!average_edge_count_NOW}")
+
 	echo
-	echo -ne "\033[1;34mGPU on test case with $dir vertexes \033[1;33m"; { time run_tests "./build/app" "gpu" $dir; } 2>&1 | grep real
-	echo -ne "\033[1;34mCPU on test case with $dir vertexes \033[1;33m"; { time run_tests "$ar_dir/dijkstra" "cpu" $dir; } 2>&1 | grep real
+	
+	echo -ne "\033[1;34mGPU on test case ($num_of_tests_NOW, $vertex_count_NOW, $average_edge_count_NOW) \033[1;33m";
+	{ time run_tests "./build/app" "gpu" $num_of_tests_NOW $vertex_count_NOW; } 2>&1 | grep real
+	
+	echo -ne "\033[1;34mCPU on test case ($num_of_tests_NOW, $vertex_count_NOW, $average_edge_count_NOW) \033[1;33m";
+	{ time run_tests "$ar_dir/dijkstra" "cpu" $num_of_tests_NOW $vertex_count_NOW; } 2>&1 | grep real
+	
 done
 
 echo -e "\033[0m"
 
-for dir in ${testing_dirs[@]}; do
-	for (( test_case_num = 1; test_case_num <= $((${num_of_tests[$dir]})); test_case_num++ )) do
-		echo -ne "$dir\t\t$test_case_num\t" 
-		$ar_dir/check_equivalence $ar_dir/results/$dir/gpu_$test_case_num.out $ar_dir/results/$dir/cpu_$test_case_num.out
-	done
-done
+# for dir in ${vertex_count[@]}; do
+
+# 	for (( test_case_num = 1; test_case_num <= $((${num_of_tests[$dir]})); test_case_num++ )) do
+
+# 		echo -ne "$dir\t\t$test_case_num\t" 
+# 		$ar_dir/check_equivalence $ar_dir/results/$dir/gpu_$test_case_num.out $ar_dir/results/$dir/cpu_$test_case_num.out
+
+# 	done
+
+# done
 
 exit 0

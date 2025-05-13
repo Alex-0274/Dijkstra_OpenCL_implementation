@@ -14,9 +14,7 @@ int main(int argc, char *argv[]) {
 		arg[i - 1] = stoi(argv[i]);
 	}
 
-	if (argc <= 2) {n = 2; m = 1;}
-	if (argc == 3) {n = arg[1]; m = (arg[1] << 1) + (arg[1] >> 1);}
-	if (argc >= 4) {n = arg[1]; m = arg[1];}
+	n = arg[1]; m = n * arg[2];
 
 	srand(time(NULL) + arg[0]);
 
