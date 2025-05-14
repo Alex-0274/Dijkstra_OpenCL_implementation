@@ -95,11 +95,7 @@ test_them() {
 	return 0
 }
 
-test_them "$@" > $ar_dir/Results.txt
-
-echo "==========================================" >> $ar_dir/Results.txt
-
-cat $ar_dir/Results.txt
+test_them "$@" > Results.txt
 
 rm -rf $ar_dir
 
